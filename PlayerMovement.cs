@@ -1,33 +1,39 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
 
-[RequireComponent(typeof(CharacterController))]
 public class PlayerMovement : MonoBehaviour
 {
-    //Variables
-    public float speed = 6.0F;
-    public float jumpSpeed = 8.0F;
-    public float gravity = 20.0F;
-    private Vector3 moveDirection = Vector3.zero;
+    public CharacterController characterController;
+    public float speed = 10f;
+    public float gravity = -9.81f;
+    public float jumpHeight = 3f;
 
+    Vector3 velocity;
+
+    // Start is called before the first frame update
+    void Start()
+    {
+        
+    }
+
+    // Update is called once per frame
     void Update()
     {
-        CharacterController controller = GetComponent<CharacterController>();
-        // is the controller on the ground?
-        if (controller.isGrounded)
-        {
-            //Feed moveDirection with input.
-            moveDirection = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
-            moveDirection = transform.TransformDirection(moveDirection);
-            //Multiply it by speed.
-            moveDirection *= speed;
-            //Jumping
-            if (Input.GetButton("Jump"))
-                moveDirection.y = jumpSpeed;
+        float x = Input.GetAxis("Horizontal") * Time.deltaTime * speed;
+        float y = Input.GetAxis("Vertical") * Time.deltaTime * speed;
 
-        }
-        //Applying gravity to the controller
-        moveDirection.y -= gravity * Time.deltaTime;
-        //Making the character move
-        controller.Move(moveDirection * Time.deltaTime);
+        Vector3 move = transform.right * x + transform.forward * y;
+
+        characterController.Move(move);
+
+        velocity.y += gravity * Time.deltaTime;
+        characterController.Move(velocity*Time.deltaTime);
+
+        if (characterController.isGrounded && Input.GetKey(KeyCode.Space))
+            velocity.y = jumpHeight;
+
+        if (characterController.isGrounded&&velocity.y<0f)
+            velocity.y = -2f;
     }
 }
